@@ -4,7 +4,7 @@
 function heap($k,$t) { // $k, entier ; $t, tableau
 
     if($k==1) {
-        echo $t[0].",".$t[1].",".$t[2].",".$t[3]."<br>" ;
+        echo implode(",", $t)."<br />" ;
         return $t ;
     } else {
         $t=heap($k-1,$t) ;
@@ -32,7 +32,7 @@ function heap($k,$t) { // $k, entier ; $t, tableau
 $a = 0 ;
 $tbl =  ["A","B","C","D"] ;
 
-heap(4,$tbl) ;
+heap(count($tbl),$tbl) ;
 
 ?>
 
