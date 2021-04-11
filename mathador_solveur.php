@@ -1,21 +1,38 @@
+
 <?php
 
-// ALGORITHME DE SOLVEUR DE MATHADOR
+include("../inc/bdd.php") ;
 
-$enigme = [14,1,11,2,3,60] ;
-//$enigme = [12,8,5,6,4,80] ;
-//$enigme = [7,2,8,9,10,37] ;
+function entiers($tbl) {
+    $oui = true ;
+    foreach($tbl as $n) {
+        if($n-floor($n)>0.1) { $oui = false ; } 
+    }
+    return $oui ;
+}
 
+$enigmes=[[6,4,10,2,9,57],[13,7,2,2,6,96]] ;
+
+foreach ($enigmes as $enigme) {
+
+if(isset($solution)) { unset($solution) ; }
+
+$jeu = join(',',$enigme) ;
 $cible = $enigme[5] ;
-
 unset($enigme[5]) ;
+
+//echo "ÉNIGME : ".join(',',$enigme)." CIBLE : ".$cible."<br>" ;
+
 rsort($enigme) ;
 
-echo "ÉNIGME : ".join(',',$enigme)." CIBLE : ".$cible."<hr>" ;
 
 $op=[
-["+","-","*","/"],["-","+","*","/"],["*","+","-","/"],["+","*","-","/"],
-["-","*","+","/"],["*","-","+","/"],["/","-","+","*"],["-","/","+","*"],["+","/","-","*"],["/","+","-","*"],["-","+","/","*"],["+","-","/","*"],["+","*","/","-"],["*","+","/","-"],["/","+","*","-"],["+","/","*","-"],["*","/","+","-"],["/","*","+","-"],["/","*","-","+"],["*","/","-","+"],["-","/","*","+"],["/","-","*","+"],["*","-","/","+"],["-","*","/","+"],["+","-","*","/"] ] ;   // toutes les permutations d'opérations possibles. Algo de Heap
+["+","-","*","/"],["-","+","*","/"],["*","+","-","/"],["+","*","-","/"],["-","*","+","/"],
+["*","-","+","/"],["/","-","+","*"],["-","/","+","*"],["+","/","-","*"],["/","+","-","*"],
+["-","+","/","*"],["+","-","/","*"],["+","*","/","-"],["*","+","/","-"],["/","+","*","-"],
+["+","/","*","-"],["*","/","+","-"],["/","*","+","-"],["/","*","-","+"],["*","/","-","+"],
+["-","/","*","+"],["/","-","*","+"],["*","-","/","+"],["-","*","/","+"],["+","-","*","/"]
+] ;   // toutes les permutations d'opérations possibles. Algo de Heap
 
 
 $p1 = [[0,1],[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]] ;
@@ -24,7 +41,6 @@ $p3 = [[0,1],[0,2],[1,2]] ;
 
 
 for($n=0;$n<count($op);$n++) {
-    
     $o=$op[$n] ; // tableau des 4 opérations à faire
 
     for($m=0;$m<count($p1);$m++) {
@@ -58,19 +74,25 @@ for($n=0;$n<count($op);$n++) {
                 if($o[2]=="/" and $e[$p3[$k][1]]==0) { break ; }
                 $res3 = eval('return '.$operation.";") ;
                 $sol[2] = $operation."=".$res3 ;
-                unset($e[$p2[$l][0]]) ;
-                unset($e[$p2[$l][1]]) ;
+                unset($e[$p3[$k][0]]) ;
+                unset($e[$p3[$k][1]]) ;
                 array_push($e,$res3) ;
                 rsort($e) ;
                 $operation = $e[0].$o[3].$e[1] ;
                 if($o[3]=="/" and $e[1]==0) { break ; }
                 $res4 = eval('return '.$operation.";") ;
                 $sol[3] = $operation."=".$res4 ;
-                if($res4==$cible) { echo join("<br>",$sol)."<hr>" ; }
+                if($res4==$cible and !isset($solution) and entiers([$res1,$res2,$res3,$res4])) { 
+                    $solution = "[\"".join("\",\"",$sol)."\"]" ;
+                    echo $jeu." ".$solution."<br />" ;
+                }
             }
         }
     }
 }
+
+} // fin for each
+
 
 
 
