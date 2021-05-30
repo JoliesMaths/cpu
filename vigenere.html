@@ -1,0 +1,127 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+ <title>~~ Chiffrement de Vigenère ~~</title>
+<script type="text/javascript">
+
+/* *********************** */
+/* FONCTION DE CHIFFREMENT */
+/* *********************** */
+
+function cvigenere(texte,passe) {
+
+/* TRAITEMENT DE LA CHAINE */
+// on la reduit aux caracteres alphanumeriques, aux signes <, > et + servant pour le codage.
+// Les autres caracteres sont codes par <xxx> ou xxx est leur nombre ASCII. 
+// Ex : ? est code <63> et un retour a la ligne est code <10> 
+// Pour gagner de la place, on remplace <32> (codage de l'espace) par +
+
+var expr1 = /[^0-9a-z]/gi ;	// liste des caracteres speciaux, y compris +, < et > (ie. la negation des caracteres alphanumeriques)
+var expr2 = /<32>/g ;		// pour remplacer les espaces codees <32> par + pour gagner de la place
+
+texte = texte.replace(expr1, function($0, $1) { return ("<" + texte.charCodeAt($1) + ">"); } ) ;
+texte = texte.replace(expr2, "+") ;
+
+/* CHIFFREMENT */
+
+var table = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz<>+" ; // 10 + 26 + 26 + 3 = 65
+l = table.length ;
+
+// verification si passe contient les lettres de la table
+var passebon = 1 ; 										// bon par defaut
+for (var i = 0 ; i < passe.length ; i++ ) 
+{ if (table.indexOf(passe.charAt(i))==-1) { passebon = 0 ; } } 	// -1 = caractere n'etant pas dans la table
+
+if (passebon == 0) { document.zone.resultat.value = "Le mot de passe ne peut contenir que des chiffres, des lettres sans accents ou les signes < > +" ; }
+
+else {
+// Chiffrement
+
+var txtchiffre ='' ;
+var j=0 ;
+
+for (var i = 0 ; i < texte.length ; i++ ) {
+	j = table.indexOf(texte.charAt(i)) + ( table.indexOf(passe.charAt(i%passe.length)) ) ;
+	j = j%l ;
+	txtchiffre = txtchiffre + table.charAt(j) ; }
+
+texte = txtchiffre ;
+
+document.zone.resultat.value = texte ;
+
+} // fin du else
+
+} // fin de la fonction
+
+
+/* ************************* */
+/* FONCTION DE DECHIFFREMENT */
+/* ************************* */
+
+function dvigenere(texte,passe) {
+
+/* DECHIFFREMENT */
+
+var table = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz<>+" ; // 10 + 26 + 26 + 3 = 65
+l = table.length ;
+
+// verification si passe contient les lettres de la table
+var passebon = 1 ; 						// bon par defaut
+for (var i = 0 ; i < passe.length ; i++ ) 
+{ if (table.indexOf(passe.charAt(i))==-1) { passebon = 0 ; } } 	// -1 = caractere n'etant pas dans la table
+
+if (passebon == 0) { document.zone.resultat.value = "Le mot de passe ne peut contenir que des chiffres, des lettres sans accents ou les signes < > +" ; }
+
+else {
+// Dechiffrement
+
+var txtdechiffre ='' ;
+var j=0 ;
+
+for (var i = 0 ; i < texte.length ; i++ ) {
+	j = table.indexOf(texte.charAt(i)) - ( table.indexOf(passe.charAt(i%passe.length)) ) ;
+	j = (j+l)%l ; 		// + l car sinon nbs negatifs possibles. Rmq : (x+l)%l = x%l 
+	txtdechiffre = txtdechiffre + table.charAt(j) ; 
+	}
+
+texte = txtdechiffre ;
+
+/* TRAITEMENT DE LA CHAINE */
+
+// le caractere + dans la chaine non traitee correspond a un espace
+// <43> non traite correspond a un + traite
+
+var expr1 = /\+/g ;			// id. les + par (espace)
+var expr2 = /\<[0-9]+\>/g ;		// les <xx> par les caracteres dont xx est le code ASCII
+
+texte = texte.replace(expr1, " ") ;
+texte = texte.replace(expr2, function($0, $1) { return (String.fromCharCode($0.slice(1,$0.length-1))) ; } ) ;
+
+// $0 = chaine en question ; $1 = position 
+
+document.zone.resultat.value = texte ;
+
+} // fin du else
+
+} // fin de la fonction
+
+</script></head>
+
+
+
+<body>
+
+<form name="zone" method="post">
+<textarea name="donnees" rows="10" cols="60" wrap="VIRTUAL">é</textarea>
+<br><br>
+<input type="text" name="passe" size="20">
+
+<br>
+<input type="submit" name="chiffrement" value="Chiffrer" onclick="cvigenere(document.zone.donnees.value,document.zone.passe.value);return false;">
+<input type="submit" name="dechiffrement" value="Déchiffrer" onclick="dvigenere(document.zone.donnees.value,document.zone.passe.value);return false;">
+<br><br>
+<textarea name="resultat" rows="15" cols="60" wrap="VIRTUAL">&lt;233&gt;</textarea>
+</form>
+
+
+
+</body></html>
